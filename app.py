@@ -62,18 +62,18 @@ col_exp2.download_button("Exportar Excel", data=excel_data, file_name="financeir
 
 st.sidebar.markdown("---")
 
-# --- FILTROS DE DATA ---
+# --- FILTROS DE DATA (Formato BR) ---
 st.sidebar.header("🔍 Filtro por Período")
-data_inicio = st.sidebar.date_input("Data Inicial", value=date(2026, 8, 1))
-data_fim = st.sidebar.date_input("Data Final", value=date(2026, 8, 31))
+data_inicio = st.sidebar.date_input("Data Inicial", value=date(2026, 8, 1), format="DD/MM/YYYY")
+data_fim = st.sidebar.date_input("Data Final", value=date(2026, 8, 31), format="DD/MM/YYYY")
 
 df = st.session_state.df_lancamentos.copy()
 if not df.empty:
     df["Data"] = pd.to_datetime(df["Data"]).dt.date
     mask = (df["Data"] >= data_inicio) & (df["Data"] <= data_fim)
-    df_filtrado = df[mask]
+    df_filtrado = df[mask].copy()
 else:
-    df_filtrado = df
+    df_filtrado = df.copy()
 
 # --- ABA DE NAVEGAÇÃO PRINCIPAL ---
 tab_dash, tab_lancamentos, tab_form = st.tabs(["📊 Dashboard & Projeções", "📋 Lista de Lançamentos", "➕ Novo / Editar Lançamento"])
@@ -140,14 +140,18 @@ with tab_dash:
             st.info("Sem dados para exibições por conta.")
 
 # -----------------------------------------------------------------------------
-# TAB 2: GERENCIAMENTO DE LANÇAMENTOS
+# TAB 2: GERENCIAMENTO DE LANÇAMENTOS (FORMATADO DD/MM/YYYY)
 # -----------------------------------------------------------------------------
 with tab_lancamentos:
     st.subheader("Todos os Lançamentos no Período")
     
     if not df_filtrado.empty:
+        # Criamos uma cópia para exibição formatada em Português / BR
+        df_display = df_filtrado.copy()
+        df_display["Data"] = pd.to_datetime(df_display["Data"]).dt.strftime('%d/%m/%Y')
+        
         st.dataframe(
-            df_filtrado.style.format({"Valor": "R$ {:,.2f}"}),
+            df_display.style.format({"Valor": "R$ {:,.2f}"}),
             use_container_width=True,
             height=350
         )
@@ -167,7 +171,7 @@ with tab_lancamentos:
         st.info("Nenhum lançamento encontrado para os filtros selecionados.")
 
 # -----------------------------------------------------------------------------
-# TAB 3: NOVO LANÇAMENTO OU EDIÇÃO (CORRIGIDO)
+# TAB 3: NOVO LANÇAMENTO OU EDIÇÃO (Formato BR)
 # -----------------------------------------------------------------------------
 with tab_form:
     st.subheader("Adicionar ou Editar Lançamento")
@@ -198,15 +202,13 @@ with tab_form:
             "Descrição": reg["Descrição"]
         }
 
-    # Chaves dinâmicas evitam conflitos de estado interno do Streamlit
     chave_prefix = f"edit_{id_edit}" if modo == "Editar Existente" else "novo_lanc"
 
     with st.form("form_lancamento"):
         col_f1, col_f2, col_f3 = st.columns(3)
-        data_f = col_f1.date_input("Data", value=dados_edit["Data"], key=f"{chave_prefix}_data")
+        # Campo de data formatado para o padrão brasileiro DD/MM/YYYY
+        data_f = col_f1.date_input("Data", value=dados_edit["Data"], format="DD/MM/YYYY", key=f"{chave_prefix}_data")
         tipo_f = col_f2.selectbox("Tipo", ["Receita", "Despesa"], index=0 if dados_edit["Tipo"] == "Receita" else 1, key=f"{chave_prefix}_tipo")
-        
-        # Sem min_value no widget para evitar exceções do Streamlit
         valor_f = col_f3.number_input("Valor (R$)", value=dados_edit["Valor"], step=10.0, format="%.2f", key=f"{chave_prefix}_valor")
 
         col_f4, col_f5, col_f6 = st.columns(3)
