@@ -14,13 +14,13 @@ st.set_page_config(
 # --- INICIALIZAÇÃO DO ESTADO DA APLICAÇÃO ---
 if "df_lancamentos" not in st.session_state:
     dados_iniciais = [
-        {"ID": 1, "Data": date(2026, 8, 1), "Tipo": "Receita", "Valor": 5500.00, "Categoria": "Outros", "Conta": "Banco Principal", "Status": "Realizado", "Descrição": "Salário Mensal"},
-        {"ID": 2, "Data": date(2026, 8, 2), "Tipo": "Despesa", "Valor": 450.00, "Categoria": "Mercado", "Conta": "Cartão Nubank", "Status": "Realizado", "Descrição": "Compras do Mês"},
-        {"ID": 3, "Data": date(2026, 8, 3), "Tipo": "Despesa", "Valor": 120.00, "Categoria": "Transporte", "Conta": "Cartão Itaú", "Status": "Realizado", "Descrição": "Combustível"},
-        {"ID": 4, "Data": date(2026, 8, 5), "Tipo": "Despesa", "Valor": 350.00, "Categoria": "Saúde", "Conta": "Banco Principal", "Status": "Realizado", "Descrição": "Consultas / Remédios"},
-        {"ID": 5, "Data": date(2026, 8, 12), "Tipo": "Despesa", "Valor": 1200.00, "Categoria": "Casa", "Conta": "Banco Principal", "Status": "Realizado", "Descrição": "Aluguel"},
-        {"ID": 6, "Data": date(2026, 8, 25), "Tipo": "Despesa", "Valor": 300.00, "Categoria": "Mercado", "Conta": "Cartão Nubank", "Status": "Pendente", "Descrição": "Supermercado Reposição"},
-        {"ID": 7, "Data": date(2026, 8, 28), "Tipo": "Receita", "Valor": 800.00, "Categoria": "Outros", "Conta": "Banco Principal", "Status": "Pendente", "Descrição": "Projeto Freelance"}
+       # {"ID": 1, "Data": date(2026, 8, 1), "Tipo": "Receita", "Valor": 5500.00, "Categoria": "Outros", "Conta": "Banco Principal", "Status": "Realizado", "Descrição": "Salário Mensal"},
+       # {"ID": 2, "Data": date(2026, 8, 2), "Tipo": "Despesa", "Valor": 450.00, "Categoria": "Mercado", "Conta": "Cartão Nubank", "Status": "Realizado", "Descrição": "Compras do Mês"},
+       # {"ID": 3, "Data": date(2026, 8, 3), "Tipo": "Despesa", "Valor": 120.00, "Categoria": "Transporte", "Conta": "Cartão Itaú", "Status": "Realizado", "Descrição": "Combustível"},
+       # {"ID": 4, "Data": date(2026, 8, 5), "Tipo": "Despesa", "Valor": 350.00, "Categoria": "Saúde", "Conta": "Banco Principal", "Status": "Realizado", "Descrição": "Consultas / Remédios"},
+       # {"ID": 5, "Data": date(2026, 8, 12), "Tipo": "Despesa", "Valor": 1200.00, "Categoria": "Casa", "Conta": "Banco Principal", "Status": "Realizado", "Descrição": "Aluguel"},
+       # {"ID": 6, "Data": date(2026, 8, 25), "Tipo": "Despesa", "Valor": 300.00, "Categoria": "Mercado", "Conta": "Cartão Nubank", "Status": "Pendente", "Descrição": "Supermercado Reposição"},
+       # {"ID": 7, "Data": date(2026, 8, 28), "Tipo": "Receita", "Valor": 800.00, "Categoria": "Outros", "Conta": "Banco Principal", "Status": "Pendente", "Descrição": "Projeto Freelance"}
     ]
     st.session_state.df_lancamentos = pd.DataFrame(dados_iniciais)
 
