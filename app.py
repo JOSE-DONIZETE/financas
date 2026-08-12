@@ -25,7 +25,7 @@ if "df_lancamentos" not in st.session_state:
     st.session_state.df_lancamentos = pd.DataFrame(dados_iniciais)
 
 CATEGORIAS = ["Alimentação", "Saúde", "Casa", "Educação", "Transporte", "Mercado", "Outros"]
-CONTAS = ["Banco Principal", "Cartão Nubank", "Cartão Itaú", "Carteira / Dinheiro"]
+CONTAS = ["Banco do Brasil", "Cartão Alimentação", "Caixa", "Carteira / Dinheiro"]
 
 st.title("💰 Controle Financeiro Pessoal")
 
