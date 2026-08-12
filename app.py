@@ -14,7 +14,7 @@ st.set_page_config(
 # --- INICIALIZAÇÃO DO ESTADO DA APLICAÇÃO ---
 if "df_lancamentos" not in st.session_state:
     dados_iniciais = [
-        {"ID": 1, "Data": date(2026, 8, 1), "Tipo": "Receita", "Valor": 5500.00, "Categoria": "Outros", "Conta": "Banco Principal", "Status": "Realizado", "Descrição": "Salário Mensal"},
+        {"ID": 1, "Data": date(2026, 8, 1), "Tipo": "Receita", "Valor": 00.00, "Categoria": "Outros", "Conta": "Banco Principal", "Status": "Realizado", "Descrição": "Salário Mensal"},
        # {"ID": 2, "Data": date(2026, 8, 2), "Tipo": "Despesa", "Valor": 450.00, "Categoria": "Mercado", "Conta": "Cartão Nubank", "Status": "Realizado", "Descrição": "Compras do Mês"},
        # {"ID": 3, "Data": date(2026, 8, 3), "Tipo": "Despesa", "Valor": 120.00, "Categoria": "Transporte", "Conta": "Cartão Itaú", "Status": "Realizado", "Descrição": "Combustível"},
        # {"ID": 4, "Data": date(2026, 8, 5), "Tipo": "Despesa", "Valor": 350.00, "Categoria": "Saúde", "Conta": "Banco Principal", "Status": "Realizado", "Descrição": "Consultas / Remédios"},
