@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime, date
 import io
+import os
 
 # Configuração da página
 st.set_page_config(
@@ -11,8 +12,20 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- INICIALIZAÇÃO DO ESTADO DA APLICAÇÃO ---
-if "df_lancamentos" not in st.session_state:
+ARQUIVO_DADOS = "dados.csv"
+
+# --- FUNÇÕES PARA SALVAR E CARREGAR DADOS ---
+def carregar_dados():
+    """Carrega os dados do arquivo CSV se ele existir; caso contrário, cria os dados iniciais."""
+    if os.path.exists(ARQUIVO_DADOS):
+        try:
+            df = pd.read_csv(ARQUIVO_DADOS)
+            df["Data"] = pd.to_datetime(df["Data"]).dt.date
+            return df
+        except Exception as e:
+            st.warning("Erro ao carregar o arquivo salvo. Criando nova base de dados.")
+    
+    # Dados iniciais de padrão caso o arquivo não exista
     dados_iniciais = [
         {"ID": 1, "Data": date(2026, 8, 1), "Tipo": "Receita", "Valor": 5500.00, "Categoria": "Outros", "Conta": "Banco Principal", "Status": "Realizado", "Descrição": "Salário Mensal"},
         {"ID": 2, "Data": date(2026, 8, 2), "Tipo": "Despesa", "Valor": 450.00, "Categoria": "Mercado", "Conta": "Cartão Nubank", "Status": "Realizado", "Descrição": "Compras do Mês"},
@@ -22,7 +35,17 @@ if "df_lancamentos" not in st.session_state:
         {"ID": 6, "Data": date(2026, 8, 25), "Tipo": "Despesa", "Valor": 300.00, "Categoria": "Mercado", "Conta": "Cartão Nubank", "Status": "Pendente", "Descrição": "Supermercado Reposição"},
         {"ID": 7, "Data": date(2026, 8, 28), "Tipo": "Receita", "Valor": 800.00, "Categoria": "Outros", "Conta": "Banco Principal", "Status": "Pendente", "Descrição": "Projeto Freelance"}
     ]
-    st.session_state.df_lancamentos = pd.DataFrame(dados_iniciais)
+    df = pd.DataFrame(dados_iniciais)
+    salvar_dados(df)
+    return df
+
+def salvar_dados(df):
+    """Salva o DataFrame de lançamentos permanentemente no arquivo CSV."""
+    df.to_csv(ARQUIVO_DADOS, index=False)
+
+# --- INICIALIZAÇÃO DO ESTADO DA APLICAÇÃO ---
+if "df_lancamentos" not in st.session_state:
+    st.session_state.df_lancamentos = carregar_dados()
 
 CATEGORIAS = ["Alimentação", "Saúde", "Casa", "Educação", "Transporte", "Mercado", "Outros"]
 CONTAS = ["Banco Principal", "Cartão Nubank", "Cartão Itaú", "Carteira / Dinheiro"]
@@ -43,7 +66,8 @@ if uploaded_file is not None:
         
         df_imp["Data"] = pd.to_datetime(df_imp["Data"]).dt.date
         st.session_state.df_lancamentos = df_imp
-        st.sidebar.success("Dados importados com sucesso!")
+        salvar_dados(df_imp)
+        st.sidebar.success("Dados importados e salvos com sucesso!")
     except Exception as e:
         st.sidebar.error(f"Erro ao carregar arquivo: {e}")
 
@@ -140,13 +164,12 @@ with tab_dash:
             st.info("Sem dados para exibições por conta.")
 
 # -----------------------------------------------------------------------------
-# TAB 2: GERENCIAMENTO DE LANÇAMENTOS (FORMATADO DD/MM/YYYY)
+# TAB 2: GERENCIAMENTO DE LANÇAMENTOS
 # -----------------------------------------------------------------------------
 with tab_lancamentos:
     st.subheader("Todos os Lançamentos no Período")
     
     if not df_filtrado.empty:
-        # Criamos uma cópia para exibição formatada em Português / BR
         df_display = df_filtrado.copy()
         df_display["Data"] = pd.to_datetime(df_display["Data"]).dt.strftime('%d/%m/%Y')
         
@@ -165,13 +188,14 @@ with tab_lancamentos:
             st.session_state.df_lancamentos = st.session_state.df_lancamentos[
                 st.session_state.df_lancamentos["ID"] != id_excluir
             ]
+            salvar_dados(st.session_state.df_lancamentos)  # Salva no disco ao excluir
             st.success(f"Lançamento ID {id_excluir} excluído com sucesso!")
             st.rerun()
     else:
         st.info("Nenhum lançamento encontrado para os filtros selecionados.")
 
 # -----------------------------------------------------------------------------
-# TAB 3: NOVO LANÇAMENTO OU EDIÇÃO (Formato BR)
+# TAB 3: NOVO LANÇAMENTO OU EDIÇÃO
 # -----------------------------------------------------------------------------
 with tab_form:
     st.subheader("Adicionar ou Editar Lançamento")
@@ -206,7 +230,6 @@ with tab_form:
 
     with st.form("form_lancamento"):
         col_f1, col_f2, col_f3 = st.columns(3)
-        # Campo de data formatado para o padrão brasileiro DD/MM/YYYY
         data_f = col_f1.date_input("Data", value=dados_edit["Data"], format="DD/MM/YYYY", key=f"{chave_prefix}_data")
         tipo_f = col_f2.selectbox("Tipo", ["Receita", "Despesa"], index=0 if dados_edit["Tipo"] == "Receita" else 1, key=f"{chave_prefix}_tipo")
         valor_f = col_f3.number_input("Valor (R$)", value=dados_edit["Valor"], step=10.0, format="%.2f", key=f"{chave_prefix}_valor")
@@ -241,9 +264,11 @@ with tab_form:
                         "Descrição": desc_f
                     }])
                     st.session_state.df_lancamentos = pd.concat([st.session_state.df_lancamentos, novo_registro], ignore_index=True)
+                    salvar_dados(st.session_state.df_lancamentos)  # Salva no disco
                     st.success("Lançamento adicionado com sucesso!")
                 else:
                     idx = st.session_state.df_lancamentos[st.session_state.df_lancamentos["ID"] == id_edit].index[0]
                     st.session_state.df_lancamentos.loc[idx] = [id_edit, data_f, tipo_f, valor_f, cat_f, conta_f, status_f, desc_f]
+                    salvar_dados(st.session_state.df_lancamentos)  # Salva no disco
                     st.success(f"Lançamento ID {id_edit} atualizado com sucesso!")
                 st.rerun()
